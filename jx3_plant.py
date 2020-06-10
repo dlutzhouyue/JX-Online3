@@ -12,26 +12,33 @@ import time
 import _thread
 
 # plant main function
+def processing(operator):
+    global FlowerpotCoords
+    global ButtonCoords
+    mouse = Controller()
+    for fc, bc in zip(FlowerpotCoords, ButtonCoords):
+        var.set(operator + 'ing......')
+        mouse.position = fc
+        mouse.click(Button.right, 1)
+        time.sleep(0.5)
+        mouse.position = bc
+        mouse.click(Button.left, 1)
+        time.sleep(0.5)
+
 def main():
     global FlowerpotCoords
     global ButtonCoords
     if not (len(FlowerpotCoords) == NUM_FLOWERPOT and len(ButtonCoords) == NUM_FLOWERPOT):
         var.set('无法种花，还没记录位置')
     else:
-        mouse = Controller()
         while len(FlowerpotCoords) > 0:
-            for fc, bc in zip(FlowerpotCoords, ButtonCoords):
-                var.set('种花ing......')
-                mouse.position = fc
-                time.sleep(0.2)
-                mouse.click(Button.right, 1)
-                time.sleep(0.2)
-                mouse.position = bc
-                time.sleep(0.2)
-                mouse.click(Button.left, 1)
-                time.sleep(0.2)
-            var.set('10分钟后进行下一次播种')
-            time.sleep(610)
+            processing('种花')
+            for t in range(610)[::-1]:
+                if len(FlowerpotCoords) == 0:
+                    break
+                var.set('%d秒后进行收花' % t)
+                time.sleep(1)
+            processing('收花')
 
 def multi_thread_main():
     _thread.start_new_thread(main, ())
@@ -67,7 +74,7 @@ def listen():
     global FlowerpotCoords
     global ButtonCoords
     reset()
-    var.set('请种一次花，以便记录鼠标位置')
+    var.set('请收一次花，以便记录鼠标位置')
     listener = mouse.Listener(on_click=on_click)
     listener.start()
 
